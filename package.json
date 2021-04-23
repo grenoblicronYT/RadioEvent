@@ -1,0 +1,20 @@
+{
+  "name": "radioevent",
+  "version": "0.0.1",
+  "description": "Radio Info/Musique",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "musique"
+  ],
+  "author": "The French Dev",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "ffmpeg-static": "^4.3.0",
+    "opusscript": "0.0.8",
+    "ytdl-core": "^4.5.0"
+  }
+}
