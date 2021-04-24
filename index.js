@@ -4,6 +4,7 @@ const ytdl = require('ytdl-core')
 let dispatcher = require('./errdisp')
 let dispatcher_msg = "" 
 let config = require('./config.json')
+let volume = 1
 
 client.login(config.token)
 
@@ -27,7 +28,7 @@ client.on('message', async (message) => {
               let live = ytdl('https://www.youtube.com/watch?v=9FjAo1SjoQs', {filter: "audio"})
               console.log('Création du flux youtube terminé, lecture.')
               dispatcher = connection.play(live);
-              dispatcher.setVolume(1);
+              dispatcher.setVolume(volume);
               dispatcher_msg = message
               console.log('Demmande terminée.')
               dispatcher.on('finish', () => {
@@ -47,6 +48,7 @@ client.on('message', async (message) => {
         if (vol <= 1) {
           if (dispatcher.setVolume(vol, message) !== "no") {
           message.reply(`Le message a été modifié jusq'a ${args[1]}%`)}
+          volume = args[1] / 100
         }else message.reply('Le volume doit se trouver entre 0 et 100. Exemple 50 pour 50%.')
       }else message.reply('Le volume doit se trouver entre 0 et 100. Exemple 50 pour 50%.')
     }else if (message.content === ".exit") {
@@ -88,9 +90,40 @@ client.on('message', async (message) => {
         message.channel.send({ embed: embed })
       }
     }
+    if (message.content.startsWith('.youtube')) {
+      let args = message.content.split(' ')
+      if (ytdl.validateURL(args[1])) {
+        let stream = ytdl(args[1])
+        startLive(message, args[1])
+      } else if (ytdl.validateID(args[1])) {
+        let url = ytdl.getURLVideoID(args[1])
+        let stream = ytdl(url)
+        startLive(message, url)
+      } else message.reply(`Merci d'indiquer une URL youtube ou son l'ID.`)
+    }
 })
 
 client.on('ready', () => {
     console.log('YOUPI')
 })
 
+async function startLive(messss, streamurl) {
+  if (messss.member.voice.channel) {
+    const connection = await messss.member.voice.channel.join();
+    console.log(`Connection au channel vocal "${messss.member.voice.channel.name} -- ${messss.member.voice.channel.id}", demmande de ${messss.author.username}`)
+    let live = ytdl(streamurl, {filter: "audio"})
+    console.log('Création du flux youtube terminé, lecture.')
+    dispatcher = connection.play(live);
+    dispatcher.setVolume(volume);
+    dispatcher_msg = messss
+    console.log('Demmande terminée.')
+    dispatcher.on('finish', () => {
+      dispatcher_msg.channel.send('Transmition terminée')
+      dispatcher = require('./errdisp')
+    });
+    
+    
+  } else {
+    messss.reply('Tu as besoin de rejoindre un salon vocal!!!!!!!!!');
+  }
+}
