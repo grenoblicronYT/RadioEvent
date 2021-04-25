@@ -5,6 +5,22 @@ let dispatcher = require('./errdisp')
 let dispatcher_msg = "" 
 let config = require('./config.json')
 let volume = 1
+const express = require('express')
+const app = express()
+let ejs = require('ejs');
+const {createHash} = require('crypto');
+function computeSHA256(lines) {
+  const hash = createHash('sha256');
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim(); // remove leading/trailing whitespace
+    if (line === '') continue; // skip empty lines
+    hash.write(line); // write a single line to the buffer
+  }
+  return hash.digest('base64'); // returns hash as string
+}
+
+app.use(express.urlencoded({ extended: true }));
+app.use('/static', express.static('public/data'));
 
 client.login(config.token)
 
@@ -127,3 +143,26 @@ async function startLive(messss, streamurl) {
     messss.reply('Tu as besoin de rejoindre un salon vocal!!!!!!!!!');
   }
 }
+
+
+app.get('/login', function (req, res) {
+  res.sendFile(__dirname + `/public/login.html`)
+
+})
+app.post('/auth', function (req, res) {
+  let user = req.body.username
+  let password = req.body.pass
+  console.log(req.body)
+  let text = user + "p" + password
+  console.log(text)
+  let hash = computeSHA256(text) + "p"
+  console.log(config.webhash)
+  console.log(hash)
+  if (config.webhash === hash) {
+    res.send("YES");
+  } else res.sendFile(__dirname + '/public/403.html')
+})
+
+app.listen(process.env.PORT | 80, () => {
+  console.log(`Server started on port ${process.env.PORT | 80}`);
+});
