@@ -18,7 +18,19 @@ function computeSHA256(lines) {
   }
   return hash.digest('base64'); // returns hash as string
 }
+var cookieParser = require('cookie-parser')
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
+}
+app.get('/404', function (req, res) {
+  res.sendFile(__dirname + '/public/404.html')
+})
 
+
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use('/static', express.static('public/data'));
 
@@ -147,7 +159,6 @@ async function startLive(messss, streamurl) {
 
 app.get('/login', function (req, res) {
   res.sendFile(__dirname + `/public/login.html`)
-
 })
 app.post('/auth', function (req, res) {
   let user = req.body.username
@@ -159,10 +170,45 @@ app.post('/auth', function (req, res) {
   console.log(config.webhash)
   console.log(hash)
   if (config.webhash === hash) {
-    res.send("YES");
+    
+    if (req.body.remember === "on") {
+      res.cookie("login", hash)
+    } else res.cookie("login", hash, {expire: 360000 + Date.now()})
+    res.sendFile(__dirname + '/public/404.html')
   } else res.sendFile(__dirname + '/public/403.html')
+})
+
+app.get('/', async function (req, res) {
+  let cookies = req.cookies
+  let login = cookies.login
+  if (config.webhash === login) {
+    res.sendFile(__dirname + "/public/index.html")
+  } else {
+    res.sendFile(__dirname + '/public/403.html')
+  }
+})
+
+app.get('/modifier-radio', function (req, res) {
+  let cookies = req.cookies
+  let login = cookies.login
+  if (config.webhash === login) {
+    res.sendFile(__dirname + `/public/ytlivech.html`)
+  } else {
+    res.sendFile(__dirname + '/public/403.html')
+  }
+  
 })
 
 app.listen(process.env.PORT | 80, () => {
   console.log(`Server started on port ${process.env.PORT | 80}`);
 });
+
+app.get('*', async function(req, res, next) {
+  res.sendFile(__dirname + "/public/404.html")
+})
+app.post('*', async function(req, res, next) {
+  res.sendFile(__dirname + "/public/500.html")
+})
+
+
+
