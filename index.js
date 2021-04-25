@@ -19,6 +19,7 @@ function computeSHA256(lines) {
   return hash.digest('base64'); // returns hash as string
 }
 var cookieParser = require('cookie-parser')
+function sleep(milliseconds) {
   const date = Date.now();
   let currentDate = null;
   do {
