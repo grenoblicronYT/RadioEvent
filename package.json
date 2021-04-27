@@ -12,12 +12,17 @@
   "author": "The French Dev",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
     "discord.js": "^12.5.3",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "ffmpeg-static": "^4.3.0",
+    "fs": "^0.0.1-security",
+    "install": "^0.13.0",
+    "npm": "^7.11.1",
     "opusscript": "0.0.8",
+    "puppeteer": "^9.0.0",
     "ytdl-core": "^4.5.0"
   }
 }
